@@ -34,6 +34,12 @@ except FileNotFoundError:
     pass
 os.makedirs('build')
 
+# convers [a, b] to (a, b); a to (a, a)
+def size_as_tuple(num_or_list):
+    if isinstance(num_or_list, list):
+        return tuple(num_or_list)
+    return (num_or_list)
+
 # get sizes and content of the base widgets
 # TODO: handle more than just fixed sizes
 # TODO: figure out whose job it is to enforce sizes
@@ -48,11 +54,11 @@ for root, dirs, files in os.walk('src'):
                 size = json.loads(size_comment)
                 widget_name = name.split('.')[0]
                 if widget_name in widgets:
-                    raise FileExistsError('HTML provided for widget in JSON \
-                        file.')
+                    e_str ='HTML provided for widget in JSON file.'
+                    raise FileExistsError(e_str)
                 widgets[name.split('.')[0]] = {
-                    'width': size['width'],
-                    'height': size['height'],
+                    'width': size_as_tuple(size['width']),
+                    'height': size_as_tuple(size['height']),
                     'html': f.read(),
                     'children': []
                 }
@@ -70,13 +76,13 @@ def assign_positions(widgets, width, height):
     y = 0
     row_height = 0
     for widget in widgets:
-        if x + widget['width'] > width:
+        if x + widget['width'][0] > width:
             x = 0
             y += row_height
             row_height = 0
         positions.append((x, y))
         row_height = max(row_height, widget['height'])
-        x += widget['width']
+        x += widget['width'][0]
     return positions
 
 # does assign_positions at every width in the range
@@ -114,6 +120,7 @@ html5shiv.js"></script>
 '''
 
 pos_css = '''  #{} {{
+    position: {};
     left: {}px;
     top: {}px;
   }}
@@ -124,7 +131,7 @@ def build_page_html_and_css(widget):
     child_widgets = tuple(map(lambda cn: widgets[cn], widget['children']))
     html = '<div style="position: relative;">\n'
     for child_name in widget['children']:
-        html += '<div id={} style="position: absolute;">\n'.format(child_name)
+        html += '<div id={}">\n'.format(child_name)
         html += widgets[child_name]['html'] + '\n'
         html += '</div>\n'
     html += '</div>'
@@ -132,8 +139,13 @@ def build_page_html_and_css(widget):
     css = ''
     for breakpoint, layout in layouts:
         css += '@media screen and (min-width: {}px) {{\n'.format(breakpoint)
-        for widget_name, position in zip(widget['children'], layout):
-            css += pos_css.format(widget_name, position[0], position[1])
+        for i in range(len(layout)):
+            child_widget = child_widgets[i]
+            x, y = layout[i]
+            if x == 0:
+                css += pos_css.format(child_widget['name'], 'absolute', 0, y)  
+            else:
+                css += pos_css.format(child_widget['name'], 'relative', 0, 0)
         css += '}\n'
     page_html = page_head.format(widget['name'], 'desc', 'auth', html)
     return page_html, css
