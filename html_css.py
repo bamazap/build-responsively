@@ -22,9 +22,10 @@ html5shiv.js"></script>
 </html>
 '''
 
-pos_css = '''  #{} {{
-    left: {}px;
+elm_css = '''  #{} {{
+    left: {}%;
     top: {}px;
+    width: {}%;
   }}
 '''
 
@@ -42,7 +43,9 @@ def build_page_html_and_css(widget, widgets):
     for breakpoint, layout in layouts:
         css += '@media screen and (min-width: {}px) {{\n'.format(breakpoint)
         for widget_name, position in zip(widget['children'], layout):
-            css += pos_css.format(widget_name, position[0], position[1])
+            left = 100 * position[0] / breakpoint
+            width = 100 * widgets[widget_name]['width'][0] / breakpoint
+            css += elm_css.format(widget_name, left, position[1], width)
         css += '}\n'
     page_html = page_head.format(widget['name'], 'desc', 'auth', html)
     return page_html, css
