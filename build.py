@@ -29,5 +29,6 @@ if len(i_widgets) > 0:
     raise NotImplementedError
 
 for widget in p_widgets:
-    html, css = build_page_html_and_css(widget, widgets)
+    child_widgets = tuple(map(lambda cn: widgets[cn], widget['children']))
+    html, css = build_page_html_and_css(widget['name'], child_widgets)
     write_html_css(widget['name'], html, css)

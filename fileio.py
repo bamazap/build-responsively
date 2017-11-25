@@ -19,54 +19,54 @@ def parse_size_comment(size_comment):
 # returns a dictionary of all of the app's widgets
 # may fail with an error due to file io
 def parse_files(json_filename):
-  # read the JSON file
-  widgets = {}
-  with open(json_filename) as f:
-      data = json.load(f)
-      if not isinstance(data, dict):
-          raise ValueError('JSON file is not formatted properly.')
-      widgets = data
+    # read the JSON file
+    widgets = {}
+    with open(json_filename) as f:
+        data = json.load(f)
+        if not isinstance(data, dict):
+            raise ValueError('JSON file is not formatted properly.')
+        widgets = data
 
-  # add a 'name' field to each widget (makes things easier later)
-  for widget_name, widget_properties in widgets.items():
-      widget_properties['name'] = widget_name
+    # add a 'name' field to each widget (makes things easier later)
+    for widget_name, widget_properties in widgets.items():
+         widget_properties['name'] = widget_name
 
-  # get sizes and content of the base widgets
-  # TODO: figure out whose job it is to enforce sizes
-  num_base_widgets = 0
-  for root, dirs, files in os.walk('src'):
-      for filename in files:
-          if filename.endswith('.html'):
-              with open(os.path.join(root, filename)) as f:
-                  width, height = parse_size_comment(f.readline())
-                  widget_name = filename[:-5]
-                  if widget_name in widgets:
-                      e_str ='HTML provided for widget in JSON file.'
-                      raise FileExistsError(e_str)
-                  widgets[widget_name] = {
-                      'width': width,
-                      'height': height,
-                      'html': f.read(),
-                      'children': [],
-                      'name': widget_name
-                  }
+     # get sizes and content of the base widgets
+    # TODO: figure out whose job it is to enforce sizes
+    num_base_widgets = 0
+    for root, dirs, files in os.walk('src'):
+        for filename in files:
+            if filename.endswith('.html'):
+                with open(os.path.join(root, filename)) as f:
+                    width, height = parse_size_comment(f.readline())
+                    widget_name = filename[:-5]
+                    if widget_name in widgets:
+                        e_str ='HTML provided for widget in JSON file.'
+                        raise FileExistsError(e_str)
+                    widgets[widget_name] = {
+                        'width': width,
+                        'height': height,
+                        'html': f.read(),
+                        'children': [],
+                        'name': widget_name
+                    }
 
-  return widgets
+    return widgets
 
 # create a directory named 'build' if it does not exist
 # empty the directory if it does
 def init_build_dir():
-  try:
-    rmtree('build')
-  except FileNotFoundError:
-    pass
-  os.makedirs('build')
+    try:
+        rmtree('build')
+    except FileNotFoundError:
+        pass
+    os.makedirs('build')
 
 def write_html_css(filename, html, css):
-  with open('build/{}.html'.format(filename), 'w+') as f:
-      f.write(html)
-  with open('build/{}.css'.format(filename), 'w+') as f:
-      f.write(css)
+    with open('build/{}.html'.format(filename), 'w+') as f:
+        f.write(html)
+    with open('build/{}.css'.format(filename), 'w+') as f:
+        f.write(css)
 
 # returns the filename of the only .json file in the current directory
 # raises a FileNotFoundError if zero or more than one file was found

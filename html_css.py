@@ -1,51 +1,65 @@
 from layout import find_breakpoints
+import math
 
-# heading info to be put in all pages
-page_head = '''\
+page = '''\
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>{0}</title>
-  <meta name="description" content="{1}">
-  <meta name="author" content="{2}">
-  <meta name="viewport" content="width=device-width">
-  <link rel="stylesheet" href="{0}.css?v=1.0">
-  <!--[if lt IE 9]>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/\
+    <meta charset="utf-8">
+    <title>{0}</title>
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="{0}.css?v=1.0">
+    <!--[if lt IE 9]>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/\
 html5shiv.js"></script>
-  <![endif]-->
+    <![endif]-->
 </head>
 <body>
-  {3}
+    {1}
 </body>
 </html>
 '''
 
-elm_css = '''  #{} {{
-    left: {}%;
-    top: {}px;
+widget_css = '''  #{} {{
+    float: left;
+    clear: {};
     width: {}%;
+    min-width: {}px;
+    max-width: {}px;
+    height: {}px;
   }}
 '''
 
-# given a widget, build HTML for it
-def build_page_html_and_css(widget, widgets):
-    child_widgets = tuple(map(lambda cn: widgets[cn], widget['children']))
-    html = '<div style="position: relative;">\n'
-    for child_name in widget['children']:
-        html += '<div id={} style="position: absolute;">\n'.format(child_name)
-        html += widgets[child_name]['html']
-        html += '</div>\n'
-    html += '</div>\n'
-    layouts = find_breakpoints(child_widgets, float('inf'))
+
+def id_div(id, content):
+    return '<div id="{}">\n{}</div>\n'.format(id, content)
+
+def build_page_html(name, widgets):
+    body = ''.join(map(lambda w: id_div(w['name'], w['html']), widgets))
+    return page.format(name, body)
+
+def css_for_widget(widget, clear, width):
+    w = widget
+    return widget_css.format(w['name'], clear, width, *w['width'], w['height'])
+
+# outputs a css string and an integer number of pixels for the next breakpoint
+def css_for_breakpoint(widgets, breakpoint, positions):
+    css = '@media screen and (min-width: {}px) {{\n'.format(breakpoint)
+    for widget, position in zip(widgets, positions):
+        clear = 'left' if positions[0] == 0 else 'none'
+        width = 100 * min(widget['width'][0] / breakpoint, 1)
+        css += css_for_widget(widget, clear, width)
+    css += '}\n'
+    return css
+
+def build_page_css(widgets):
+    layouts = find_breakpoints(widgets, float('inf'))
     css = ''
-    for breakpoint, layout in layouts:
-        css += '@media screen and (min-width: {}px) {{\n'.format(breakpoint)
-        for widget_name, position in zip(widget['children'], layout):
-            left = 100 * position[0] / breakpoint
-            width = 100 * widgets[widget_name]['width'][0] / breakpoint
-            css += elm_css.format(widget_name, left, position[1], width)
-        css += '}\n'
-    page_html = page_head.format(widget['name'], 'desc', 'auth', html)
-    return page_html, css
+    for i in range(len(layouts)):
+        css += css_for_breakpoint(widgets, *layouts[i])
+    return css
+
+def build_page_html_and_css(name, widgets):
+    html = build_page_html(name, widgets)
+    css = build_page_css(widgets)
+    return html, css

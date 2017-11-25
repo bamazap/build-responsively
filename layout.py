@@ -19,8 +19,8 @@ def assign_positions(widgets, width, height):
 # outputs a list of tuples (width, layout)
 # layout is position assignments like in assign_positions
 # the layout should be used for all parent sizes > width (overriding last one)
-def find_breakpoints(widgets, height, min_width=300, max_width=2000):
-    breakpoints = [(300, assign_positions(widgets, min_width, height))]
+def find_breakpoints(widgets, height, min_width=1, max_width=2000):
+    breakpoints = [(min_width, assign_positions(widgets, min_width, height))]
     for width in range(min_width+1, max_width+1):
         next_layout = assign_positions(widgets, width, height)
         if next_layout != breakpoints[-1][1]:
