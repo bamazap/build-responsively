@@ -14,7 +14,7 @@ page = '''\
 html5shiv.js"></script>
     <![endif]-->
 </head>
-<body>
+<body style="margin: 0;">
     {1}
 </body>
 </html>
@@ -26,7 +26,6 @@ widget_css = '''  #{} {{
     width: {}%;
     min-width: {}px;
     max-width: {}px;
-    height: {}px;
   }}
 '''
 
@@ -39,14 +38,13 @@ def build_page_html(name, widgets):
     return page.format(name, body)
 
 def css_for_widget(widget, clear, width):
-    w = widget
-    return widget_css.format(w['name'], clear, width, *w['width'], w['height'])
+    return widget_css.format(widget['name'], clear, width, *widget['width'])
 
 # outputs a css string and an integer number of pixels for the next breakpoint
 def css_for_breakpoint(widgets, breakpoint, positions):
     css = '@media screen and (min-width: {}px) {{\n'.format(breakpoint)
     for widget, position in zip(widgets, positions):
-        clear = 'left' if positions[0] == 0 else 'none'
+        clear = 'left' if position[0] == 0 else 'none'
         width = 100 * min(widget['width'][0] / breakpoint, 1)
         css += css_for_widget(widget, clear, width)
     css += '}\n'

@@ -14,7 +14,7 @@ args = parser.parse_args()
 json_filename = args.json if args.json else find_json_file()
 
 # read files to get widgets
-widgets = parse_files(json_filename)
+widgets, user_styles = parse_files(json_filename)
 
 # set up build directory
 init_build_dir()
@@ -31,4 +31,4 @@ if len(i_widgets) > 0:
 for widget in p_widgets:
     child_widgets = tuple(map(lambda cn: widgets[cn], widget['children']))
     html, css = build_page_html_and_css(widget['name'], child_widgets)
-    write_html_css(widget['name'], html, css)
+    write_html_css(widget['name'], html, user_styles + css)

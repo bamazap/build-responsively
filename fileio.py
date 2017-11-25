@@ -21,6 +21,7 @@ def parse_size_comment(size_comment):
 def parse_files(json_filename):
     # read the JSON file
     widgets = {}
+    css = ''
     with open(json_filename) as f:
         data = json.load(f)
         if not isinstance(data, dict):
@@ -50,8 +51,11 @@ def parse_files(json_filename):
                         'children': [],
                         'name': widget_name
                     }
+            elif filename.endswith('.css'):
+                with open(os.path.join(root, filename)) as f:
+                    css += f.read()
 
-    return widgets
+    return widgets, css
 
 # create a directory named 'build' if it does not exist
 # empty the directory if it does
