@@ -28,6 +28,10 @@ b_widgets, i_widgets, p_widgets = sort_and_group_widgets(widgets)
 if len(i_widgets) > 0:
     raise NotImplementedError
 
+for widget in i_widgets:
+    child_widgets = tuple(map(lambda cn: widgets[cn], widget['children']))
+    widget['html'] = build_widget_html(widget['name'], child_widgets)
+
 for widget in p_widgets:
     child_widgets = tuple(map(lambda cn: widgets[cn], widget['children']))
     html, css = build_page_html_and_css(widget['name'], child_widgets)
