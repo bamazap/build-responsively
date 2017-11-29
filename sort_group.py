@@ -5,13 +5,16 @@ from toposort import toposort_flatten
 # intermediate widgets: has children and is contained by another widget
 # page widgets: has children and is contained by no other widgets
 def sort_and_group_widgets(widgets):
+    # make set of names of all widgets which are children
     all_children = set()
     for widget_properties in widgets.values():
         for child in widget_properties['children']:
-            all_children.add(child)
+            all_children.add(child['name'])
+    # make dictionary mapping parent name to child names
     hopefully_dag = {}
     for widget_name, widget_properties in widgets.items():
-        hopefully_dag[widget_name] = set(widget_properties['children'])
+        child_names = map(lambda c: c['name'], widget_properties['children'])
+        hopefully_dag[widget_name] = set(child_names)
     base_widgets = []
     intermediate_widgets = []
     page_widgets = []

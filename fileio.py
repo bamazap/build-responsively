@@ -6,7 +6,7 @@ from shutil import rmtree
 def size_as_tuple(num_or_list):
     if isinstance(num_or_list, list):
         return tuple(num_or_list)
-    return (num_or_list)
+    return (num_or_list, num_or_list)
 
 # convert the comment specifying the widget size
 # returns ((minW, maxW), (minH, maxH))
@@ -32,7 +32,7 @@ def parse_files(json_filename):
     for widget_name, widget_properties in widgets.items():
          widget_properties['name'] = widget_name
 
-     # get sizes and content of the base widgets
+    # get sizes and content of the base widgets
     # TODO: figure out whose job it is to enforce sizes
     num_base_widgets = 0
     for root, dirs, files in os.walk('src'):
@@ -54,6 +54,10 @@ def parse_files(json_filename):
             elif filename.endswith('.css'):
                 with open(os.path.join(root, filename)) as f:
                     css += f.read()
+
+    # convert list of child names to tuple of actual child widgets
+    for w in widgets.values():
+        w['children'] = tuple(map(lambda n: widgets[n], w['children']))
 
     return widgets, css
 

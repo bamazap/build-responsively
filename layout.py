@@ -11,7 +11,7 @@ def assign_positions(widgets, width, height):
             y += row_height
             row_height = 0
         positions.append((x, y))
-        row_height = max(row_height, widget['height'])
+        row_height = max(row_height, widget['height'][0])
         x += widget['width'][0]
     return positions
 
