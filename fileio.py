@@ -15,13 +15,22 @@ def parse_size_comment(size_comment):
     size_dict = json.loads(size_json)
     return tuple(size_as_tuple(size_dict[key]) for key in ('width', 'height'))
 
+# finds all .css files in the src folder and concatenates their contents
+def get_user_css():
+    css = ''
+    for root, dirs, files in os.walk('src'):
+        for filename in files:
+            if filename.endswith('.css'):
+                with open(os.path.join(root, filename)) as f:
+                    css += f.read()
+    return css
+
 # given the json file which specifies the app composition
 # returns a dictionary of all of the app's widgets
 # may fail with an error due to file io
-def parse_files(json_filename):
+def parse_json_file(json_filename):
     # read the JSON file
     widgets = {}
-    css = ''
     with open(json_filename) as f:
         data = json.load(f)
         if not isinstance(data, dict):
@@ -51,15 +60,12 @@ def parse_files(json_filename):
                         'children': [],
                         'name': widget_name
                     }
-            elif filename.endswith('.css'):
-                with open(os.path.join(root, filename)) as f:
-                    css += f.read()
 
     # convert list of child names to tuple of actual child widgets
     for w in widgets.values():
         w['children'] = tuple(map(lambda n: widgets[n], w['children']))
 
-    return widgets, css
+    return widgets
 
 # create a directory named 'build' if it does not exist
 # empty the directory if it does
