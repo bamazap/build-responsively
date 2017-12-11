@@ -1,5 +1,3 @@
-from name_counter import NameCounter
-
 page_template = '''\
 <!doctype html>
 <html lang="en">
