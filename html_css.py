@@ -1,7 +1,6 @@
-from layout import find_breakpoints
-import math
+from name_counter import NameCounter
 
-page = '''\
+page_template = '''\
 <!doctype html>
 <html lang="en">
 <head>
@@ -17,7 +16,6 @@ page = '''\
 '''
 
 widget_css = '''  #{} {{
-    float: left;
     clear: {};
     width: {}%;
     min-width: {}px;
@@ -25,48 +23,79 @@ widget_css = '''  #{} {{
   }}
 '''
 
-def id_div(div_id, content):
-    return '<div id="{}">\n{}</div>\n'.format(div_id, content)
+parent_css = '''  #{} {{
+    max-width: {}px;
+  }}
+'''
 
-# maps widget names to number of times it has been added to the page
-name_counts = {}
-# get the correct id for a widget, update name_counts
-def name_to_id(parent_name, child_name):
-    name_counts[child_name] = name_counts.get(child_name, 0) + 1
-    return '{}-{}-{}'.format(parent_name, child_name, name_counts[child_name])
-def reset_name_counts():
-    for name in name_counts.keys():
-        name_counts[name] = 0
+default_css = '''#{} {{
+  width: 100%;
+  float: left;
+  min-width: {}px;
+  max-width: {}px;
+}}
+'''
 
-def build_page_html(name, widgets):
-    def widget_to_div(widget):
-        return id_div(name_to_id(name, widget['name']), widget['html'])
-    body = ''.join(map(widget_to_div, widgets))
-    return page.format(name, body)
+def build_widget_html(widget):
+    if 'html' in widget:
+        return widget['html']
+    w_html = ''
+    for c in widget['children']:
+        c_html = build_widget_html(c)
+        w_html += '<div id="{}">\n{}</div>\n'.format(c['name'], c_html)
+    return w_html
 
-def css_for_widget(name, widget, clear, width):
-    div_id = name_to_id(name, widget['name'])
-    return widget_css.format(div_id, clear, width, *widget['width'])
+def build_page_html(page):
+    body = build_widget_html(page)
+    return page_template.format(page['name'], body)
 
-# outputs a css string and an integer number of pixels for the next breakpoint
-def css_for_breakpoint(name, widgets, breakpoint, positions):
+def css_for_widget(name, clear, per_width, min_width, max_width):
+    return widget_css.format(name, clear, per_width, min_width, max_width)
+
+def css_for_parent(parent, max_width):
+    return parent_css.format(parent['name'], max_width)
+
+# generates css for the breakpoint based on layout
+def css_for_layout(widget, positions, w_range, scale):
+    breakpoint = round(w_range[0]/scale)
     css = '@media screen and (min-width: {}px) {{\n'.format(breakpoint)
-    for widget, position in zip(widgets, positions):
+    rest_css = ''
+    for child, position in zip(widget['children'], positions):
+        # put on new line if x position is 0 (may need to revisit)
         clear = 'left' if position[0] == 0 else 'none'
-        width = 100 * min(widget['width'][0] / breakpoint, 1)
-        css += css_for_widget(name, widget, clear, width)
+        # % width based on minimum widths (may need to revisit)
+        w_frac = min(child['width'][0] / w_range[0], 1)
+        css += css_for_widget(child['name'], clear, 100*w_frac, *child['width'])
+        # recurse
+        if child['children']:
+            new_w_range = tuple(round(x*scale) for x in w_range)
+            rest_css += build_css(child, widget, new_w_range, scale*w_frac)
     css += '}\n'
-    return css
+    return css + rest_css
 
-def build_page_css(name, widgets):
-    layouts = find_breakpoints(widgets, float('inf'))
+# runs layout algorithm over width-span of widget to find layout breakpoints
+# generates css for each layout
+# w_range is the minimum and maximum parent width to consider
+# scale is the fraction of screen size we are currently at (just to pass thru)
+def build_css(widget, parent=None, w_range=None, scale=1.0):
     css = ''
-    for i in range(len(layouts)):
-        reset_name_counts()
-        css += css_for_breakpoint(name, widgets, *layouts[i])
+    for i, (w_range, positions) in enumerate(widget['layouts']):
+        # clip max width to next breakpoint
+        range_max = w_range[1]
+        if (i+1) < len(widget['layouts']):
+            range_max = min(range_max, widget['layouts'][i+1][0][0]-1)
+        css += css_for_layout(widget, positions, (w_range[0], range_max), scale)
     return css
 
-def build_page_html_and_css(name, widgets):
-    html = build_page_html(name, widgets)
-    css = build_page_css(name, widgets)
-    return html, css
+# produces css with 100% width and min/max widths for all widgets
+# this is necessary for when screen is smaller than all breakpoints
+def build_default_css(widget):
+    css = ''
+    for child in widget['children']:
+        css += default_css.format(child['name'], *child['width'])
+        if child['children']:
+            css += build_default_css(child)
+    return css
+
+def build_page_css(page):
+    return build_default_css(page) + build_css(page)
