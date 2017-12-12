@@ -12,5 +12,46 @@
             "signin",
             "register"
         ]
+    },
+    "dashboard": {
+        "children": [
+            ["navbarloggedin"],
+            "newpartybutton",
+            "parties"
+        ]
+    },
+    "parties": {
+        "children": [
+            "party",
+            "party"
+        ]
+    },
+    "party": {
+        "children": [
+            ["partytitle"],
+            "partyinfo",
+            "partycontrols",
+            "partyguests",
+            "partysupplies"
+        ]
+    },
+    "partyguests": {
+        "children": [
+            "invitedlist",
+            "attendinglist"
+        ]
+    },
+    "partysupplies": {
+        "children": [
+            "supplytable",
+            "addsupply"
+        ]
+    },
+    "newparty": {
+        "children": [
+            ["navbarloggedin"],
+            "newpartyheading",
+            "newpartyform"
+        ]
     }
 }
