@@ -10,7 +10,7 @@ def assign_positions(widgets, width, height):
     max_x = 0
     max_w = 0
     for widget in widgets:
-        if x + widget['width'][0] > width:
+        if x + widget['width'][0] > width or widget['row']:
             x = 0
             y += row_height
             row_height = 0
@@ -20,6 +20,12 @@ def assign_positions(widgets, width, height):
         row_height = max(row_height, widget['height'][0])
         x += widget['width'][0]
         max_x += widget['width'][1]
+        if widget['row']:
+            x = 0
+            y += row_height
+            row_height = 0
+            max_w = max(max_x, max_w)
+            max_x = 0
     return positions, max(max_x, max_w)
 
 # returned is a multiple_layout: a list of (min-width, layout, max-width) tuples

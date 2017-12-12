@@ -1,0 +1,16 @@
+{
+    "index": {
+        "children": [
+            ["navbarloggedout"],
+            ["signinregister"],
+            ["info"],
+            ["picture"]
+        ]
+    },
+    "signinregister": {
+        "children": [
+            "signin",
+            "register"
+        ]
+    }
+}

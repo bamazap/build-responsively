@@ -37,9 +37,25 @@ def parse_json_file(json_filename):
             raise ValueError('JSON file is not formatted properly.')
         widgets = data
 
-    # add a 'name' field to each widget (makes things easier later)
-    for widget_name, widget_properties in widgets.items():
-         widget_properties['name'] = widget_name
+    # add a 'name' field to each widget
+    # set 'row' field to false if not set to true
+    # figure out the names of all included widgets
+    children = set()
+    for widget_name, widget_properties in list(widgets.items()):
+        widget_properties['name'] = widget_name
+        widget_properties['row'] = widget_properties.get('row', False)
+        for i, child in enumerate(widget_properties['children']):
+            if isinstance(child, list):
+                row_name = '{}-row-{}'.format(widget_name, i)
+                widgets[row_name] = {
+                    "name": row_name,
+                    "children": child,
+                    "row": True
+                }
+                widget_properties['children'][i] = row_name
+                children.update(child)
+        children.update(widget_properties['children'])
+
 
     # get sizes and content of the base widgets
     # TODO: figure out whose job it is to enforce sizes
@@ -48,22 +64,24 @@ def parse_json_file(json_filename):
         for filename in files:
             if filename.endswith('.html'):
                 with open(os.path.join(root, filename)) as f:
-                    width, height = parse_size_comment(f.readline())
                     widget_name = filename[:-5]
                     if widget_name in widgets:
                         e_str ='HTML provided for widget in JSON file.'
                         raise FileExistsError(e_str)
-                    widgets[widget_name] = {
-                        'width': width,
-                        'height': height,
-                        'html': f.read(),
-                        'children': [],
-                        'name': widget_name
-                    }
+                    if widget_name in children:
+                        width, height = parse_size_comment(f.readline())
+                        widgets[widget_name] = {
+                            'width': width,
+                            'height': height,
+                            'html': f.read(),
+                            'children': [],
+                            'name': widget_name,
+                            'row': False
+                        }
 
     # convert list of child names to tuple of actual child widgets
     for w in widgets.values():
-        w['children'] = tuple(map(lambda n: widgets[n], w['children']))
+        w['children'] = list(map(lambda n: widgets[n], w['children']))
 
     return widgets
 

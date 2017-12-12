@@ -1,0 +1,56 @@
+{
+    "index": {
+        "children": [
+            ["navbarloggedout"],
+            ["signinregister"],
+            ["info"],
+            ["picture"]
+        ]
+    },
+    "signinregister": {
+        "children": [
+            "signin",
+            "register"
+        ]
+    },
+    "dashboard": {
+        "children": [
+            "navbarloggedin",
+            "newpartybutton",
+            "parties"
+        ]
+    },
+    "parties": {
+        "children": [
+            "party",
+            "party"
+        ]
+    },
+    "party": {
+        "children": [
+            "partytitle",
+            "partyinfo",
+            "partycontrols",
+            "partyguests",
+            "partysupplies"
+        ]
+    },
+    "partyguests": {
+        "children": [
+            "invitedlist",
+            "attendinglist"
+        ]
+    },
+    "partysupplies": {
+        "children": [
+            "supplytable",
+            "addsupply"
+        ]
+    },
+    "newparty": {
+        "children": [
+            "newpartyheading",
+            "newpartyform"
+        ]
+    }
+}

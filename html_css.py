@@ -31,6 +31,8 @@ default_css = '''#{} {{
   float: left;
   min-width: {}px;
   max-width: {}px;
+  min-height: {}px;
+  max-height: {}px;
 }}
 '''
 
@@ -62,7 +64,7 @@ def css_for_layout(widget, positions, w_range, scale):
         # put on new line if x position is 0 (may need to revisit)
         clear = 'left' if position[0] == 0 else 'none'
         # % width based on minimum widths (may need to revisit)
-        w_frac = min(child['width'][0] / w_range[0], 1)
+        w_frac = 1 if child['row'] else min(child['width'][0] / w_range[0], 1)
         css += css_for_widget(child['name'], clear, 100*w_frac, *child['width'])
         # recurse
         if child['children']:
@@ -89,10 +91,10 @@ def build_css(widget, parent=None, w_range=None, scale=1.0):
 # this is necessary for when screen is smaller than all breakpoints
 def build_default_css(widget):
     css = ''
-    for child in widget['children']:
-        css += default_css.format(child['name'], *child['width'])
-        if child['children']:
-            css += build_default_css(child)
+    for c in widget['children']:
+        css += default_css.format(c['name'], *c['width'], *c['height'])
+        if c['children']:
+            css += build_default_css(c)
     return css
 
 def build_page_css(page):
