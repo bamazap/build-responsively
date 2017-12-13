@@ -47,5 +47,3 @@ def multiple_layouts(widget, width_range, max_height):
 def single_layout(widgets, width, height):
     positions, maxw = assign_positions(widgets, width, height)
     return positions, maxw
-
-

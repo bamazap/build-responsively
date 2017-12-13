@@ -25,6 +25,14 @@ def get_user_css():
                     css += f.read()
     return css
 
+def get_head():
+    try:
+        with open('src/head.html') as f:
+            return f.read()
+    except FileNotFoundError:
+        pass
+    return ''
+
 # given the json file which specifies the app composition
 # returns a dictionary of all of the app's widgets
 # may fail with an error due to file io

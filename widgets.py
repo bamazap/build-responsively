@@ -8,7 +8,7 @@ def calculate_sizes(widget):
 def uniqify(widget, d={}):
     w = widget.copy()
     d[w['name']] = d.get(w['name'], 0) + 1
-    w['name'] += '-{}'.format(d[w['name']])
+    w['id'] = '{}-{}'.format(w['name'], d[w['name']])
     if w['children']:
         w['children'] = [uniqify(c, d) for j, c in enumerate(w['children'])]
     return w

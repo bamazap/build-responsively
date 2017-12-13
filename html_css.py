@@ -3,12 +3,13 @@ page_template = '''\
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>{0}</title>
+    <title>{1} | {0}</title>
     <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" href="{0}.css?v=1.0">
+    {2}
 </head>
 <body style="margin:0;">
-    {1}
+    {3}
 </body>
 </html>
 '''
@@ -36,27 +37,28 @@ default_css = '''#{} {{
 }}
 '''
 
+div_html = '<div id="{}" class="{}">\n{}</div>\n'
+
 def build_widget_html(widget):
     if 'html' in widget:
         return widget['html']
     w_html = ''
     for c in widget['children']:
         c_html = build_widget_html(c)
-        w_html += '<div id="{}">\n{}</div>\n'.format(c['name'], c_html)
+        w_html += div_html.format(c['id'], c['name'], c_html)
     return w_html
 
-def build_page_html(page):
+def build_page_html(page, app_name, head):
     body = build_widget_html(page)
-    return page_template.format(page['name'], body)
+    return page_template.format(page['name'], app_name, head, body)
 
 def css_for_widget(name, clear, per_width, min_width, max_width):
     return widget_css.format(name, clear, per_width, min_width, max_width)
 
-def css_for_parent(parent, max_width):
-    return parent_css.format(parent['name'], max_width)
-
 # generates css for the breakpoint based on layout
 def css_for_layout(widget, positions, w_range, scale):
+    if scale == 0:
+        return ''
     breakpoint = round(w_range[0]/scale)
     css = '@media screen and (min-width: {}px) {{\n'.format(breakpoint)
     rest_css = ''
@@ -64,8 +66,9 @@ def css_for_layout(widget, positions, w_range, scale):
         # put on new line if x position is 0 (may need to revisit)
         clear = 'left' if position[0] == 0 else 'none'
         # % width based on minimum widths (may need to revisit)
-        w_frac = 1 if child['row'] else min(child['width'][0] / w_range[0], 1)
-        css += css_for_widget(child['name'], clear, 100*w_frac, *child['width'])
+        w_frac = 1 if (child['row'] or w_range[0] == 0) \
+            else min(child['width'][0] / w_range[0], 1)
+        css += css_for_widget(child['id'], clear, 100*w_frac, *child['width'])
         # recurse
         if child['children']:
             new_w_range = tuple(round(x*scale) for x in w_range)
@@ -92,7 +95,7 @@ def build_css(widget, parent=None, w_range=None, scale=1.0):
 def build_default_css(widget):
     css = ''
     for c in widget['children']:
-        css += default_css.format(c['name'], *c['width'], *c['height'])
+        css += default_css.format(c['id'], *c['width'], *c['height'])
         if c['children']:
             css += build_default_css(c)
     return css

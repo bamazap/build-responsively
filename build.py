@@ -23,6 +23,8 @@ widgets = parse_json_file(json_filename)
 # get contents of user-provided css files
 user_styles = get_user_css()
 
+head = get_head()
+
 # set up build directory
 init_build_dir()
 
@@ -37,7 +39,6 @@ for w in itertools.chain(i_widgets, p_widgets):
 # generate HTML and CSS for pages
 for widget in p_widgets:
     page = uniqify(widget)
-    page['name'] = widget['name']
-    html = build_page_html(page)
+    html = build_page_html(page, json_filename[:-5], head)
     css = build_page_css(page)
     write_html_css(page['name'], html, user_styles + css)
