@@ -22,17 +22,17 @@
     },
     "parties": {
         "children": [
-            "party",
-            "party"
+            ["party"],
+            ["party"]
         ]
     },
     "party": {
         "children": [
             ["partytitle"],
-            "partyinfo",
-            "partycontrols",
-            "partyguests",
-            "partysupplies"
+            ["partyinfo",
+            "partycontrols"],
+            ["partyguests",
+            "partysupplies"]
         ]
     },
     "partyguests": {

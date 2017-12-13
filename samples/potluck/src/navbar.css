@@ -13,3 +13,8 @@
 .navbar-right {
   float: right!important;
 }
+
+.form-horizontal .form-group {
+    margin-right: 0px;
+    margin-left: 0px;
+}
