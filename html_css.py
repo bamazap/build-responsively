@@ -1,3 +1,4 @@
+# contains page head, allowing info and html body to be injected
 page_template = '''\
 <!doctype html>
 <html lang="en">
@@ -14,6 +15,7 @@ page_template = '''\
 </html>
 '''
 
+# used to resize & reposition widgets at breakpoints
 widget_css = '''  #{} {{
     clear: {};
     width: {}%;
@@ -22,23 +24,27 @@ widget_css = '''  #{} {{
   }}
 '''
 
+# prevent parents from expanding past their children
 parent_css = '''  #{} {{
     max-width: {}px;
   }}
 '''
 
+# when screen is smaller than all breakpoints, stack widgets at 100% size
 default_css = '''#{} {{
   width: 100%;
   float: left;
   min-width: {}px;
   max-width: {}px;
-  min-height: {}px;
-  max-height: {}px;
+  height: {}px;
 }}
 '''
 
+# a simple div tag, with space for id, class, and children
 div_html = '<div id="{}" class="{}">\n{}</div>\n'
 
+# concatenates the html of the widget's children and returns it
+# or returns the value of the html field for a base widget
 def build_widget_html(widget):
     if 'html' in widget:
         return widget['html']
@@ -48,10 +54,12 @@ def build_widget_html(widget):
         w_html += div_html.format(c['id'], c['name'], c_html)
     return w_html
 
+# creates html for a page widget, using html of child widgets
 def build_page_html(page, app_name, head):
     body = build_widget_html(page)
     return page_template.format(page['name'], app_name, head, body)
 
+# returns css for a widget, given its name & the properties it should have
 def css_for_widget(name, clear, per_width, min_width, max_width):
     return widget_css.format(name, clear, per_width, min_width, max_width)
 
@@ -95,10 +103,11 @@ def build_css(widget, parent=None, w_range=None, scale=1.0):
 def build_default_css(widget):
     css = ''
     for c in widget['children']:
-        css += default_css.format(c['id'], *c['width'], *c['height'])
+        css += default_css.format(c['id'], *c['width'], c['height'])
         if c['children']:
             css += build_default_css(c)
     return css
 
+# call this entry function on a page widget to get the right css
 def build_page_css(page):
     return build_default_css(page) + build_css(page)

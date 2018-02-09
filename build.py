@@ -23,6 +23,7 @@ widgets = parse_json_file(json_filename)
 # get contents of user-provided css files
 user_styles = get_user_css()
 
+# get head to apply to every HTML page
 head = get_head()
 
 # set up build directory
@@ -33,8 +34,10 @@ b_widgets, i_widgets, p_widgets = sort_and_group_widgets(widgets)
 
 # calculate size ranges for generated widgets
 for w in itertools.chain(i_widgets, p_widgets):
-    w['width'], w['height'] = calculate_sizes(w)
-    w['layouts'] = multiple_layouts(w, w['width'], w['height'])
+    width_range, height = calculate_sizes(w)
+    w['height'] = height
+    w['layouts'] = multiple_layouts(w, width_range, height)
+    #TODO: set width and height
 
 # generate HTML and CSS for pages
 for widget in p_widgets:

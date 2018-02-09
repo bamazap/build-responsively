@@ -2,6 +2,10 @@ import os
 import json
 from shutil import rmtree
 
+# returns true for an integer or float, false otherwise
+def isnumber(x):
+    return isinstance(x, int) or isinstance(x, float)
+
 # convers [a, b] to (a, b) or a to (a, a)
 def size_as_tuple(num_or_list):
     if isinstance(num_or_list, list):
@@ -13,7 +17,16 @@ def size_as_tuple(num_or_list):
 def parse_size_comment(size_comment):
     size_json = size_comment.replace('<!--', '{').replace('-->', '}')
     size_dict = json.loads(size_json)
-    return tuple(size_as_tuple(size_dict[key]) for key in ('width', 'height'))
+    # width should be list of lists of numbers
+    width = size_dict['width']
+    # allow single number
+    if isnumber(width)
+        width = [[width, width]]
+    # allow a length-2 list of numbers
+    if len(width) == 2 and isnumber(width[0]) and isnumber(width[1]):
+        width = [[width[0], width[1]]]
+    height = size_dict['height']
+    return width, height
 
 # finds all .css files in the src folder and concatenates their contents
 def get_user_css():
@@ -51,6 +64,9 @@ def parse_json_file(json_filename):
     children = set()
     for widget_name, widget_properties in list(widgets.items()):
         widget_properties['name'] = widget_name
+        if widget_name == 'head':
+            e_str ='Widget called "head" uses reserved name'
+            raise FileExistsError(e_str)
         widget_properties['row'] = widget_properties.get('row', False)
         for i, child in enumerate(widget_properties['children']):
             if isinstance(child, list):
@@ -76,6 +92,9 @@ def parse_json_file(json_filename):
                     if widget_name in widgets:
                         e_str ='HTML provided for widget in JSON file.'
                         raise FileExistsError(e_str)
+                    if widget_name == 'head':
+                        e_str ='Widget called "head" uses reserved name'
+                        raise FileExistsError(e_str) 
                     if widget_name in children:
                         width, height = parse_size_comment(f.readline())
                         widgets[widget_name] = {
