@@ -47,33 +47,3 @@ def multiple_layouts(widget, width_range, max_height):
 def single_layout(widgets, width, height):
     positions, maxw = assign_positions(widgets, width, height)
     return positions, maxw
-
-# layout: (layout | boolean)[]
-# each boolean corresponds to a child widget, each layout to a group of them
-#   the boolean says whether or not the widget starts a new line
-#   the first boolean of a layout says if the layout starts a new line
-# this particular function uses a single grouping with nls when space runs out
-def create_layout(widget, max_width):
-    newlines = []
-    x = 0
-    for child in widget['children']:
-        if x + child['width'][0][0] > max_width or child['row']:
-            x = 0
-            newlines.append(True)
-        else:
-            newlines.append(False)
-        x += widget['width'][0][0]
-        if widget['row']:
-            x += max_width # forces the next one to be on a new line
-    newlines[0] = True
-    return [newlines]
-
-def calculate_size_of_layout(widget):
-    children = widget['children']
-    layout = widget['layout']
-
-
-def layouts(widget):
-    # convert children into layout
-    widget['layout'] = create_layout(widget)
-    # calculate size of layout

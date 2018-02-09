@@ -20,7 +20,7 @@ def parse_size_comment(size_comment):
     # width should be list of lists of numbers
     width = size_dict['width']
     # allow single number
-    if isnumber(width)
+    if isnumber(width):
         width = [[width, width]]
     # allow a length-2 list of numbers
     if len(width) == 2 and isnumber(width[0]) and isnumber(width[1]):
@@ -86,15 +86,14 @@ def parse_json_file(json_filename):
     num_base_widgets = 0
     for root, dirs, files in os.walk('src'):
         for filename in files:
+            if filename == 'head.html':
+                continue
             if filename.endswith('.html'):
                 with open(os.path.join(root, filename)) as f:
                     widget_name = filename[:-5]
                     if widget_name in widgets:
                         e_str ='HTML provided for widget in JSON file.'
                         raise FileExistsError(e_str)
-                    if widget_name == 'head':
-                        e_str ='Widget called "head" uses reserved name'
-                        raise FileExistsError(e_str) 
                     if widget_name in children:
                         width, height = parse_size_comment(f.readline())
                         widgets[widget_name] = {

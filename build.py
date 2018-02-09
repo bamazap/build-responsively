@@ -35,9 +35,9 @@ b_widgets, i_widgets, p_widgets = sort_and_group_widgets(widgets)
 # calculate size ranges for generated widgets
 for w in itertools.chain(i_widgets, p_widgets):
     width_range, height = calculate_sizes(w)
+    w['width'] = [width_range] # TODO: tighter width bound
     w['height'] = height
     w['layouts'] = multiple_layouts(w, width_range, height)
-    #TODO: set width and height
 
 # generate HTML and CSS for pages
 for widget in p_widgets:

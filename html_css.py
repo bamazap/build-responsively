@@ -1,3 +1,5 @@
+from widgets import width_range
+
 # contains page head, allowing info and html body to be injected
 page_template = '''\
 <!doctype html>
@@ -74,9 +76,10 @@ def css_for_layout(widget, positions, w_range, scale):
         # put on new line if x position is 0 (may need to revisit)
         clear = 'left' if position[0] == 0 else 'none'
         # % width based on minimum widths (may need to revisit)
+        min_w, max_w = width_range(child)
         w_frac = 1 if (child['row'] or w_range[0] == 0) \
-            else min(child['width'][0] / w_range[0], 1)
-        css += css_for_widget(child['id'], clear, 100*w_frac, *child['width'])
+            else min(min_w / w_range[0], 1)
+        css += css_for_widget(child['id'], clear, 100*w_frac, min_w, max_w)
         # recurse
         if child['children']:
             new_w_range = tuple(round(x*scale) for x in w_range)
@@ -103,7 +106,7 @@ def build_css(widget, parent=None, w_range=None, scale=1.0):
 def build_default_css(widget):
     css = ''
     for c in widget['children']:
-        css += default_css.format(c['id'], *c['width'], c['height'])
+        css += default_css.format(c['id'], *width_range(c), c['height'])
         if c['children']:
             css += build_default_css(c)
     return css

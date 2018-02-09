@@ -1,6 +1,9 @@
 # calculates the minimum and maximum possible widths and heights
 # for a generated widget based on the sizes of its children
 def calculate_sizes(widget):
+    for w in widget['children']:
+        if 'width' not in w:
+            print(w['name'])
     min_width = max([w['width'][0][0] for w in widget['children']])
     max_width = sum([w['width'][-1][1] for w in widget['children']])
     height = sum([w['height'] for w in widget['children']])
@@ -22,3 +25,9 @@ def print_widget_tree(widget, level=0):
     print(level*'  ' + widget['name'])
     for child in widget['children']:
         print_widget_tree(child, level+1)
+
+# returns [min_width, max_width] for a widget
+def width_range(widget):
+    min_width = widget['width'][0][0]
+    max_width = widget['width'][-1][-1]
+    return [min_width, max_width]
