@@ -1,6 +1,12 @@
 # build-responsively
 An experimental approach to responsive design.
 
+## New Repository
+This repository (which contains Python code) has been abandoned in favor of a new one (containing JavaScript code): [easy-rwd](https://github.com/bamazap/easy-rwd). This change has occurred because this tool seems better-suited as a Node package, and a fairly different definition of a layout is being used.
+
+I do not expect to work in this repository again, but I am leaving it for
+reference.
+
 ## Idea
 Pages are composed of widgets, which may be composed of other widgets
 themselves. Base widgets have no children, and are created normally with HTML.
